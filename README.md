@@ -1,2 +1,2 @@
 # tincloud-infrastructure
-Infrastructure Deployment with Terraform
+Infrastructure Deployment with OpenTofu
