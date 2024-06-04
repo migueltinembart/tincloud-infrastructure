@@ -1,55 +1,44 @@
-variable "dns_servers" {
-  type        = list(string)
-  description = "List of DNS servers"
-}
-
-variable "dns_entries" {
-  type = list(object({
-    name = string
-    ip   = string
-  }))
-  validation {
-    # Check Format for ip regex
-    condition     = alltrue([
-      for entry in var.dns_entries : can(regex("^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", entry.ip))
-    ])
-    error_message = "Not in correct format. bust be an IP address"
-  }
-}
-
-variable "gateway_ip" {
-  type        = object({
-    name = string
-    ip   = string
-  })
-  description = "Gateway IP address"
-}
-
-variable "cidr_entries" {
-  type        = object({
-    name = string
-    cidr = string
-  })
-  description = "CIDR for the subnet"
-}
-
 variable "fabric" {
   type = object({
-    id   = string
+    id   = optional(number)
     name = string
   })
 }
 
-variable "vlan" {
+variable "pool" {
   type = object({
+    id   = optional(number)
+    name = string
+  })
+}
+
+variable "subnets" {
+  type = map(object({
+    vlan_id     = number
+    cidr        = string
+    gateway     = string
+    dns_servers = list(string)
+    dhcp_ranges = set(object({
+      type     = string
+      start_ip = string
+      end_ip   = string
+    }))
+  }))
+}
+
+variable "vlans" {
+  type = list(object({
     vid  = number
     name = string
-  })
-  description = "VLAN ID"
+  }))
+  description = "List of VLANs to be created"
 }
 
-variable "name" {
-  type        = string
-  description = "Name of the subnet"
+variable "dns_records" {
+  type = map(object({
+    name = string
+    type = string
+    ttl  = number
+    data = string
+  }))
 }
-
