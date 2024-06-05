@@ -1,3 +1,14 @@
+variable "maas_api_url" {
+  description = "URL for the MAAS provider"
+  type        = string
+}
+
+variable "maas_api_key" {
+  description = "API key for the MAAS provider"
+  type        = string
+  sensitive   = true
+}
+
 variable "fabric" {
   type = object({
     id   = optional(number)
@@ -14,7 +25,7 @@ variable "pool" {
 
 variable "subnets" {
   type = map(object({
-    vlan_id     = number
+    vlan_id     = string
     cidr        = string
     gateway     = string
     dns_servers = list(string)
@@ -26,19 +37,11 @@ variable "subnets" {
   }))
 }
 
-variable "vlans" {
-  type = list(object({
-    vid  = number
-    name = string
-  }))
-  description = "List of VLANs to be created"
-}
-
-variable "dns_records" {
-  type = map(object({
-    name = string
-    type = string
-    ttl  = number
-    data = string
-  }))
-}
+## variable "dns_records" {
+##   type = map(object({
+##     name = string
+##     type = string
+##     ttl  = number
+##     data = string
+##   }))
+## }
