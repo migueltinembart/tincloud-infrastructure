@@ -32,5 +32,6 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
-giswil/compute/api_key
-giswil/compute/api_url
+
+api_key
+api_url
