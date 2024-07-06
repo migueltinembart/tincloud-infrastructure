@@ -2,7 +2,7 @@
 
 This Repository holds all infrastructure details for my infrastructure named tincloud. The following terraform deployments are listed here:
 
-- [shared](/giswil/shared/README.md) - Holds shared services for all environments
+- [shared](/giswil/shared) - Holds shared services for all environments
 
 ## Usage
 
