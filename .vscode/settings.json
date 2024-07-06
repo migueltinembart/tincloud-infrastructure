@@ -1,0 +1,8 @@
+{
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json": [
+      "file:///Users/migueltinembart/projects/tbz/development-environment/tincloud-infrastructure/giswil/compute/cloud-init.yaml",
+      "file:///Users/migueltinembart/projects/tbz/development-environment/tincloud-infrastructure/giswil/shared/infra_runner.yaml"
+    ]
+  }
+}

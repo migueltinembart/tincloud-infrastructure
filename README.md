@@ -1,2 +1,5 @@
 # tincloud-infrastructure
-Infrastructure Deployment with OpenTofu
+Infrastructure Deployment with Terraform
+
+- [Compute](/giswil/compute/README.md)
+
