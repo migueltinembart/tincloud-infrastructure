@@ -37,3 +37,7 @@ For now, every Region has its own folder inside the root of the project. The fol
 
 - Giswil -> My home
 - az -> Azure
+
+### Documentation
+
+Every Deployment gets documented for itself specifying variables for that deployment or basic overview of data for that part of my infrastructure which can be public.
