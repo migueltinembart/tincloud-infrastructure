@@ -1,4 +1,4 @@
-# Giswil Compute
+# Giswil shared
 
 This part of the infrastructure is handled by Ansible and is used to provide configuration for setting up the compute infrastructure. It configures the most essential aspects of managing the following components:
 
