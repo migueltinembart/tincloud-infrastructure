@@ -35,3 +35,4 @@ terraform.rc
 
 api_key
 api_url
+github_token
