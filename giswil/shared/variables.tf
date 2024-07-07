@@ -9,6 +9,12 @@ variable "maas_api_key" {
   sensitive   = true
 }
 
+variable "github_token" {
+  description = "Token for the GitHub provider"
+  type        = string
+  sensitive   = true
+}
+
 variable "domains" {
   type = set(string)
 
@@ -27,3 +33,4 @@ variable "pipeline_runners" {
     user_data = string
   }))
 }
+
