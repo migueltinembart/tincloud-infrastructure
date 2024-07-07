@@ -1,0 +1,45 @@
+#cloud-config:
+package_update: true
+package_upgrade: true
+
+packages: 
+  - zlib1g
+  - libssl1.1
+  - libicu60
+  - libkrb5-3
+  - liblttng-ust-ctl4 
+  - liblttng-ust0 
+  - liburcu6
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg-agent
+  - software-properties-common
+
+users:
+  - name: ghrunner
+    groups: sudo
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDSA5XBY+bgkyClSqnEI4QlbVNf9fs1sgwxVjQr/CS8V Ansible
+
+runcmd:
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+  - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - apt-get -y update 
+  - apt-get -y install docker-ce docker-ce-cli containerd.io
+  - systemctl start docker
+  - systemctl enable docker
+  - usermod -a -G docker ghrunner
+  
+  - mkdir /build-cache 
+  - mkdir /actions-runner
+  - cd /actions-runner
+  - curl -o actions-runner-linux-x64-2.317.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.317.0/actions-runner-linux-x64-2.317.0.tar.gz
+  - tar xzf ./actions-runner-linux-x64-${runner_version}.tar.gz
+  - RUNNER_ALLOW_RUNASROOT=1 ./config.sh --url https://github.com/${owner}/${github_repo} --token ${github_token} --unattended
+  - RUNNER_ALLOW_RUNASROOT=1 ./svc.sh install 
+  - RUNNER_ALLOW_RUNASROOT=1 ./svc.sh start
+  - chown -R ghrunner /actions-runner 
+  - chown -R ghrunner /build-cache

@@ -20,17 +20,15 @@ variable "domains" {
 
 }
 
-variable "kvm_hosts" {
+variable "kvm_host_ids" {
   type = set(string)
 }
 
 variable "pipeline_runners" {
   type = map(object({
     kvm_host  = string
-    cores     = number
-    memory    = number
-    storage   = number
-    user_data = string
+    runner_version = string
+    github_repo = string
   }))
 }
 
