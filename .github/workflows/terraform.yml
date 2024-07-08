@@ -15,8 +15,8 @@ jobs:
         environment:
           [
             { name: "az-shared", folder: "az/shared" },
-            { name: "giswil-shared", folder: "giswil/shared" },
-            { name: "global-shared", folder: "global/shared" },
+            ##{ name: "giswil-shared", folder: "giswil/shared" },
+            ##{ name: "global-shared", folder: "global/shared" },
           ]
     runs-on: ${{ matrix.os }}
     environment: ${{ matrix.environment.name }}
