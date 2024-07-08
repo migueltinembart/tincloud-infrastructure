@@ -64,9 +64,36 @@ jobs:
         run: terraform fmt -check
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./terraform/${{ matrix.environment.folder }}
+
       # Generates an execution plan for Terraform
       - name: Terraform Plan
-        run: terraform plan -input=false -var-file=variables.tfvars -var maas_api_url=${{secrets.maas_api_url}} -var maas_api_key=${{secrets.maas_api_key}} -var github_token=${{secrets.gh_token}}
+        run: terraform plan -input=false -out=tfplan -var-file=${{ secrets.tfvars_file }}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
         # On push to "main", build or change infrastructure according to Terraform configuration files
