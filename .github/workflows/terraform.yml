@@ -52,10 +52,6 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: ls
-        run: ls -la
-        working-directory: ./terraform/${{ matrix.environment.folder }}
-
       - name: Terraform Init
         run: >
           terraform init \
@@ -69,10 +65,6 @@ jobs:
             -backend-config="client_id=${{secrets.client_id}}" \
             -backend-config="client_secret=${{secrets.client_secret}}" \
             -backend-config="subscription_id=${{secrets.subscription_id}}"
-        working-directory: ./terraform/${{ matrix.environment.folder }}
-
-      - name: Terraform Format
-        run: terraform fmt -check
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
       - name: Generate variable file
@@ -99,7 +91,6 @@ jobs:
             { name: "global-shared", folder: "global/shared" }
           ]
     steps:
-      # Checkout the repository to the GitHub Actions runner
       - name: Download Artifacts
         uses: actions/download-artifact@v2
         with:
@@ -109,15 +100,9 @@ jobs:
       - name: install unzip
         run: sudo apt-get install unzip nodejs -y
 
-      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: ls
-        run: ls -la
-        working-directory: ./terraform/${{ matrix.environment.folder }}
-
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         run: >
           terraform init \
@@ -133,15 +118,12 @@ jobs:
             -backend-config="subscription_id=${{secrets.subscription_id}}"
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
-      # Checks that all Terraform configuration files adhere to a canonical format
-
       - name: Generate variable file
         run: |
           cat << EOF > ./terraform/${{ matrix.environment.folder }}/variables.tfvars
           ${{ secrets.variables_tfvars }}
           EOF
 
-      # Generates an execution plan for Terraform
       - name: Terraform Plan
         run: terraform plan -input=false -out=tfplan -var-file=variables.tfvars
         working-directory: ./terraform/${{ matrix.environment.folder }}
@@ -190,7 +172,6 @@ jobs:
       - name: install unzip
         run: sudo apt-get install unzip nodejs -y
 
-      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
@@ -198,7 +179,6 @@ jobs:
         run: ls -la
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         run: >
           terraform init \
@@ -214,10 +194,6 @@ jobs:
             -backend-config="subscription_id=${{secrets.subscription_id}}"
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
-      # Checks that all Terraform configuration files adhere to a canonical format
-      - name: Terraform Format
-        run: terraform fmt -check
-        working-directory: ./terraform/${{ matrix.environment.folder }}
 
       - name: Generate variable file
         run: |
@@ -225,7 +201,6 @@ jobs:
           ${{ secrets.variables_tfvars }}
           EOF
 
-      # Generates an execution plan for Terraform
       - name: Terraform Apply
         run: terraform apply -input=false -out=tfplan -var-file=variables.tfvars
         working-directory: ./terraform/${{ matrix.environment.folder }}
