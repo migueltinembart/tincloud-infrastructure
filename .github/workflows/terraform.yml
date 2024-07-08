@@ -56,6 +56,7 @@ jobs:
       - name: Terraform Init
         run: >
           terraform init \
+            -migrate-state
             -input=false \
             -backend-config="resource_group_name=${{vars.resource_group_name}}" \
             -backend-config="storage_account_name=${{vars.storage_account_name}}" \
