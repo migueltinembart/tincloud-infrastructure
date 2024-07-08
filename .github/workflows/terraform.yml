@@ -60,8 +60,8 @@ jobs:
             -backend-config="resource_group_name=${{vars.resource_group_name}}" \
             -backend-config="storage_account_name=${{vars.storage_account_name}}" \
             -backend-config="container_name=${{vars.container_name}}" \
-            -backend-config=key="${{vars.key}}" \
-            -backend-config="use_azuread_auth=true" \
+            -backend-config="key=${{vars.key}}" \
+            -backend-config=use_azuread_auth=true \
             -backend-config="tenant_id=${{secrets.tenant_id}}" \
             -backend-config="client_id=${{secrets.client_id}}" \
             -backend-config="client_secret=${{secrets.client_secret}}" \
