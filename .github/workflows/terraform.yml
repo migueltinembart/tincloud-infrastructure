@@ -33,7 +33,7 @@ jobs:
           path: ./terraform
 
       - name: install unzip
-        run: sudo apt-get install unzip -y
+        run: sudo apt-get install unzip nodejs -y
 
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
@@ -51,7 +51,6 @@ jobs:
             -backend-config=tenant_id=${{secrets.tenant_id}}
             -backend-config=client_id=${{secrets.client_id}}
             -backend-config=client_secret=${{secrets.client_secret}}
-
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
       # Checks that all Terraform configuration files adhere to a canonical format
