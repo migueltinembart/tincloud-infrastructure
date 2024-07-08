@@ -70,7 +70,7 @@ jobs:
           VARIABLES_TFVARS: ${{ secrets.variables_tfvars }}
 
       - name: Terraform Validate
-        run: terraform validate -out=tfplan -var-file=variables.tfvars
+        run: terraform validate -var-file=variables.tfvars
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
 
