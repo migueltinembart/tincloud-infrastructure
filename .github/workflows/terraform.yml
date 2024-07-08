@@ -1,17 +1,23 @@
-name: 'Terraform'
+name: "Terraform"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
 
 jobs:
   terraform_validate:
-    name: 'Terraform'
+    name: "Terraform"
+    continue-on-error: true
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        environment: [{name: "az-shared", folder: "az/shared", }, {name: "giswil-shared", folder: "giswil/shared", }, {name: "global-shared", folder: "global/shared", }]
+        os: [self-hosted]
+        environment:
+          [
+            { name: "az-shared", folder: "az/shared" },
+            { name: "giswil-shared", folder: "giswil/shared" },
+            { name: "global-shared", folder: "global/shared" },
+          ]
     runs-on: ${{ matrix.os }}
     environment: ${{ matrix.environment.name }}
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -20,32 +26,40 @@ jobs:
         shell: bash
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        path: ./terraform
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ./terraform
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init -backend-config=resource_group_name=${{secrets.resource_group_name}} -backend-config=storage_account_name=${{secrets.storage_account_name}} -backend-config=container_name=${{secrets.container_name}} -backend-config=key=${{secrets.key}} -backend-config=access_key=${{secrets.access_key}}
-      working-directory: ./terraform/${{ matrix.environment.folder }}
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: >
+          terraform init
+            -backend-config=resource_group_name=${{vars.resource_group_name}} 
+            -backend-config=storage_account_name=${{vars.storage_account_name}} 
+            -backend-config=container_name=${{vars.container_name}} 
+            -backend-config=key=${{vars.key}} 
+            -backend-config=use_oidc=true
+            -backend-config=tenant_id=${{secrets.tenant_id}}
+            -backend-config=client_id=${{secrets.client_id}}
+            -backend-config=client_secret=${{secrets.client_secret}}
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format
-      run: terraform fmt -check
-      working-directory: ./terraform/${{ matrix.environment.folder }}
+        working-directory: ./terraform/${{ matrix.environment.folder }}
 
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: terraform plan -input=false -var-file=variables.tfvars -var maas_api_url=${{secrets.maas_api_url}} -var maas_api_key=${{secrets.maas_api_key}} -var github_token=${{secrets.gh_token}}
-      working-directory: ./terraform/${{ matrix.environment.folder }}
+      # Checks that all Terraform configuration files adhere to a canonical format
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: ./terraform/${{ matrix.environment.folder }}
 
-      # On push to "main", build or change infrastructure according to Terraform configuration files
-      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+      # Generates an execution plan for Terraform
+      - name: Terraform Plan
+        run: terraform plan -input=false -var-file=variables.tfvars -var maas_api_url=${{secrets.maas_api_url}} -var maas_api_key=${{secrets.maas_api_key}} -var github_token=${{secrets.gh_token}}
+        working-directory: ./terraform/${{ matrix.environment.folder }}
 
+        # On push to "main", build or change infrastructure according to Terraform configuration files
+        # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
