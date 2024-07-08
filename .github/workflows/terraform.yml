@@ -46,16 +46,16 @@ jobs:
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         run: >
-          terraform init
-            -input=false
-            -backend-config="resource_group_name=${{vars.resource_group_name}}"
-            -backend-config="storage_account_name=${{vars.storage_account_name}}"
-            -backend-config="container_name=${{vars.container_name}}"
-            -backend-config=key="${{vars.key}}"
-            -backend-config="use_oidc=true"
-            -backend-config="tenant_id=${{secrets.tenant_id}}"
-            -backend-config="client_id=${{secrets.client_id}}"
-            -backend-config="client_secret=${{secrets.client_secret}}"
+          terraform init \
+            -input=false \
+            -backend-config="resource_group_name=${{vars.resource_group_name}}" \
+            -backend-config="storage_account_name=${{vars.storage_account_name}}" \
+            -backend-config="container_name=${{vars.container_name}}" \
+            -backend-config=key="${{vars.key}}" \
+            -backend-config="use_oidc=true" \
+            -backend-config="tenant_id=${{secrets.tenant_id}}" \
+            -backend-config="client_id=${{secrets.client_id}}" \
+            -backend-config="client_secret=${{secrets.client_secret}}" \
             -backend-config="subscription_id=${{secrets.subscription_id}}"
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
