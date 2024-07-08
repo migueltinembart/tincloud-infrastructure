@@ -1,5 +1,5 @@
 data "azurerm_subscription" "top-level" {
-  for_each = toset(var.subscription_ids)
+  for_each        = toset(var.subscription_ids)
   subscription_id = each.value
 }
 
@@ -22,8 +22,8 @@ resource "azuread_service_principal" "github" {
 }
 
 resource "azurerm_role_assignment" "github" {
-    for_each = data.azurerm_subscription.top-level
-    principal_id = azuread_service_principal.github.object_id
-    scope = each.value.id
-    role_definition_name = "Contributor"
+  for_each             = data.azurerm_subscription.top-level
+  principal_id         = azuread_service_principal.github.object_id
+  scope                = each.value.id
+  role_definition_name = "Contributor"
 }
