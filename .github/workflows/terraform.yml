@@ -32,6 +32,9 @@ jobs:
         with:
           path: ./terraform
 
+      - name: install unzip
+        run: sudo apt-get install unzip -y
+
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
