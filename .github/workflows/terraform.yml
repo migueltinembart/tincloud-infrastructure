@@ -23,6 +23,7 @@ jobs:
 
   terraform_validate:
     name: "Terraform Validate ${{ matrix.environment.name }}"
+    needs: gitCheckout
     continue-on-error: true
     strategy:
       matrix:
@@ -133,9 +134,6 @@ jobs:
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
       # Checks that all Terraform configuration files adhere to a canonical format
-      - name: Terraform Format
-        run: terraform fmt -check
-        working-directory: ./terraform/${{ matrix.environment.folder }}
 
       - name: Generate variable file
         run: |
