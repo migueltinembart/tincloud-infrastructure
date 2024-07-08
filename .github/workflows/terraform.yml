@@ -12,8 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        environment:
-          [
+        environment: [
             { name: "az-shared", folder: "az/shared" },
             ##{ name: "giswil-shared", folder: "giswil/shared" },
             ##{ name: "global-shared", folder: "global/shared" },
@@ -65,14 +64,14 @@ jobs:
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
       - name: Generate variable file
-        run: echo $VARIABLES_TFVARS >> ./terraform/${{ matrix.environment.folder }}/variables.tfvars
-        env:
-          VARIABLES_TFVARS: ${{ secrets.variables_tfvars }}
+        run: |
+          cat << EOF > ./terraform/${{ matrix.environment.folder }}/variables.tfvars
+          ${{ secrets.variables_tfvars }}
+          EOF
 
       - name: Terraform Validate
         run: terraform validate
         working-directory: ./terraform/${{ matrix.environment.folder }}
-
 
       # Generates an execution plan for Terraform
       - name: Terraform Plan
