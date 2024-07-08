@@ -64,37 +64,26 @@ jobs:
         run: terraform fmt -check
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
+      - name: Generate variable file
+        run: echo $VARIABLES_TFVARS >> ./terraform/${{ matrix.environment.folder }}/variables.tfvars
+        env:
+          VARIABLES_TFVARS: ${{ secrets.variables_tfvars }}
+
       - name: Terraform Validate
-        run: terraform validate
+        run: terraform validate -out=tfplan -var-file=${{ secrets.variables_tfvars }}
         working-directory: ./terraform/${{ matrix.environment.folder }}
+
 
       # Generates an execution plan for Terraform
       - name: Terraform Plan
         run: terraform plan -input=false -out=tfplan -var-file=${{ secrets.variables_tfvars }}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         working-directory: ./terraform/${{ matrix.environment.folder }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: tfplan
+          path: ./terraform/${{ matrix.environment.folder }}/tfplan
 
         # On push to "main", build or change infrastructure according to Terraform configuration files
         # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
