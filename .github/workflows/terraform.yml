@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [self-hosted]
+        os: [ubuntu-latest]
         environment:
           [
             { name: "az-shared", folder: "az/shared" },
