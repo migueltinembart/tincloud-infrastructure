@@ -6,30 +6,188 @@ on:
   pull_request:
 
 jobs:
+  gitCheckout:
+    name: "Checkout"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: ./terraform
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: terraform
+          path: ./terraform
+
   terraform_validate:
-    name: "Terraform"
+    name: "Terraform Validate ${{ matrix.environment.name }}"
     continue-on-error: true
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [self-hosted]
         environment: [
             { name: "az-shared", folder: "az/shared" },
-            ##{ name: "giswil-shared", folder: "giswil/shared" },
-            ##{ name: "global-shared", folder: "global/shared" },
+            { name: "giswil-shared", folder: "giswil/shared" },
+            { name: "global-shared", folder: "global/shared" },
           ]
     runs-on: ${{ matrix.os }}
     environment: ${{ matrix.environment.name }}
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
 
     steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
         with:
+          name: terraform
           path: ./terraform
+        
+      - name: install unzip
+        run: sudo apt-get install unzip nodejs -y
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: ls
+        run: ls -la
+        working-directory: ./terraform/${{ matrix.environment.folder }}
+
+      - name: Terraform Init
+        run: >
+          terraform init \
+            -input=false \
+            -backend-config="resource_group_name=${{vars.resource_group_name}}" \
+            -backend-config="storage_account_name=${{vars.storage_account_name}}" \
+            -backend-config="container_name=${{vars.container_name}}" \
+            -backend-config=key="${{vars.key}}" \
+            -backend-config="use_oidc=true" \
+            -backend-config="tenant_id=${{secrets.tenant_id}}" \
+            -backend-config="client_id=${{secrets.client_id}}" \
+            -backend-config="client_secret=${{secrets.client_secret}}" \
+            -backend-config="subscription_id=${{secrets.subscription_id}}"
+        working-directory: ./terraform/${{ matrix.environment.folder }}
+
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: ./terraform/${{ matrix.environment.folder }}
+
+      - name: Generate variable file
+        run: |
+          cat << EOF > ./terraform/${{ matrix.environment.folder }}/variables.tfvars
+          ${{ secrets.variables_tfvars }}
+          EOF
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./terraform/${{ matrix.environment.folder }}
+
+  terraform_plan:
+    name: "Terraform Plan ${{ matrix.environment.name }}"
+    needs: terraform_validate
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      matrix:
+        os: [self-hosted]
+        environment: [
+            { name: "az-shared", folder: "az/shared" },
+            { name: "giswil-shared", folder: "giswil/shared" },
+            { name: "global-shared", folder: "global/shared" }
+          ]
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: terraform
+          path: ./terraform
+        
+      - name: install unzip
+        run: sudo apt-get install unzip nodejs -y
+
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: ls
+        run: ls -la
+        working-directory: ./terraform/${{ matrix.environment.folder }}
+
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: >
+          terraform init \
+            -input=false \
+            -backend-config="resource_group_name=${{vars.resource_group_name}}" \
+            -backend-config="storage_account_name=${{vars.storage_account_name}}" \
+            -backend-config="container_name=${{vars.container_name}}" \
+            -backend-config=key="${{vars.key}}" \
+            -backend-config="use_oidc=true" \
+            -backend-config="tenant_id=${{secrets.tenant_id}}" \
+            -backend-config="client_id=${{secrets.client_id}}" \
+            -backend-config="client_secret=${{secrets.client_secret}}" \
+            -backend-config="subscription_id=${{secrets.subscription_id}}"
+        working-directory: ./terraform/${{ matrix.environment.folder }}
+
+      # Checks that all Terraform configuration files adhere to a canonical format
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: ./terraform/${{ matrix.environment.folder }}
+
+      - name: Generate variable file
+        run: |
+          cat << EOF > ./terraform/${{ matrix.environment.folder }}/variables.tfvars
+          ${{ secrets.variables_tfvars }}
+          EOF
+
+      # Generates an execution plan for Terraform
+      - name: Terraform Plan
+        run: terraform plan -input=false -out=tfplan -var-file=variables.tfvars
+        working-directory: ./terraform/${{ matrix.environment.folder }}
+        env:
+          ARM_CLIENT_ID: ${{ secrets.client_id }}
+          ARM_CLIENT_SECRET: ${{ secrets.client_secret }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+          ARM_TENANT_ID: ${{ secrets.tenant_id }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: tfplan
+          path: ./terraform/${{ matrix.environment.folder }}/tfplan
+
+  terraform_apply:
+    name: "Terraform Apply ${{ matrix.environment.name }}"
+    needs: terraform_plan
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      matrix:
+        os: [self-hosted]
+        environment: [
+            { name: "az-shared", folder: "az/shared" },
+            { name: "giswil-shared", folder: "giswil/shared" },
+            { name: "global-shared", folder: "global/shared" }
+          ]
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: terraform
+          path: ./terraform
+      
+      - name: Download Plan
+        uses: actions/download-artifact@v2
+        with:
+          name: tfplan
+          path: ./tfplan
+      
+      - name: ls
+        run: ls -la
+        working-directory: ./
 
       - name: install unzip
         run: sudo apt-get install unzip nodejs -y
@@ -69,25 +227,12 @@ jobs:
           ${{ secrets.variables_tfvars }}
           EOF
 
-      - name: Terraform Validate
-        run: terraform validate
-        working-directory: ./terraform/${{ matrix.environment.folder }}
-
       # Generates an execution plan for Terraform
-      - name: Terraform Plan
-        run: terraform plan -input=false -out=tfplan -var-file=variables.tfvars
+      - name: Terraform Apply
+        run: terraform apply -input=false -out=tfplan -var-file=variables.tfvars
         working-directory: ./terraform/${{ matrix.environment.folder }}
         env:
           ARM_CLIENT_ID: ${{ secrets.client_id }}
           ARM_CLIENT_SECRET: ${{ secrets.client_secret }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
           ARM_TENANT_ID: ${{ secrets.tenant_id }}
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: tfplan
-          path: ./terraform/${{ matrix.environment.folder }}/tfplan
-
-        # On push to "main", build or change infrastructure according to Terraform configuration files
-        # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
