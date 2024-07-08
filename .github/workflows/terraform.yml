@@ -51,6 +51,7 @@ jobs:
             -backend-config=tenant_id=${{secrets.tenant_id}}
             -backend-config=client_id=${{secrets.client_id}}
             -backend-config=client_secret=${{secrets.client_secret}}
+            -backend-config=subscription_id=${{secrets.subscription_id}}
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
       # Checks that all Terraform configuration files adhere to a canonical format
