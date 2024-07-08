@@ -1,3 +1,10 @@
+locals {
+  github_roles = [
+    "Privileged Role Administrator",
+    "User Administrator"
+  ]
+}
+
 data "azurerm_subscription" "top-level" {
   for_each        = toset(var.subscription_ids)
   subscription_id = each.value
@@ -21,13 +28,15 @@ resource "azuread_service_principal" "github" {
   owners          = [data.azuread_user.owner.object_id]
 }
 
-resource "azuread_directory_role" "user_administrator" {
-  template_id  = "fe930be7-5e62-47db-91af-98c3a49a38b1"
+resource "azuread_directory_role" "role" {
+  for_each     = toset(local.github_roles)
+  display_name = each.value
 }
 
 resource "azuread_directory_role_assignment" "github_role_assignment" {
+  for_each            = toset(local.github_roles)
   principal_object_id = azuread_service_principal.github.object_id
-  role_id             = azuread_directory_role.user_administrator.id
+  role_id             = azuread_directory_role.role[each.value].template_id
 }
 
 resource "azurerm_role_assignment" "github" {
