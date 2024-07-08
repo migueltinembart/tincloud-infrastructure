@@ -24,11 +24,12 @@ jobs:
   terraform_validate:
     name: "Terraform Validate ${{ matrix.environment.name }}"
     needs: gitCheckout
-    continue-on-error: true
     strategy:
+      fail-fast: true
       matrix:
         os: [self-hosted]
-        environment: [
+        environment:
+          [
             { name: "az-shared", folder: "az/shared" },
             { name: "giswil-shared", folder: "giswil/shared" },
             { name: "global-shared", folder: "global/shared" },
@@ -45,7 +46,7 @@ jobs:
         with:
           name: terraform
           path: ./terraform
-        
+
       - name: install unzip
         run: sudo apt-get install unzip nodejs -y
 
@@ -81,14 +82,15 @@ jobs:
     name: "Terraform Plan ${{ matrix.environment.name }}"
     needs: terraform_validate
     runs-on: ${{ matrix.os }}
-    continue-on-error: true
     strategy:
+      fail-fast: true
       matrix:
         os: [self-hosted]
-        environment: [
+        environment:
+          [
             { name: "az-shared", folder: "az/shared" },
             { name: "giswil-shared", folder: "giswil/shared" },
-            { name: "global-shared", folder: "global/shared" }
+            { name: "global-shared", folder: "global/shared" },
           ]
     steps:
       - name: Download Artifacts
@@ -96,7 +98,7 @@ jobs:
         with:
           name: terraform
           path: ./terraform
-        
+
       - name: install unzip
         run: sudo apt-get install unzip nodejs -y
 
@@ -136,21 +138,21 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: tfplan
+          name: tfplan_${{ matrix.environment.name }}
           path: ./terraform/${{ matrix.environment.folder }}/tfplan
 
   terraform_apply:
     name: "Terraform Apply ${{ matrix.environment.name }}"
     needs: terraform_plan
     runs-on: ${{ matrix.os }}
-    continue-on-error: true
     strategy:
       matrix:
         os: [self-hosted]
-        environment: [
+        environment:
+          [
             { name: "az-shared", folder: "az/shared" },
             { name: "giswil-shared", folder: "giswil/shared" },
-            { name: "global-shared", folder: "global/shared" }
+            { name: "global-shared", folder: "global/shared" },
           ]
     steps:
       - name: Download Artifacts
@@ -158,16 +160,12 @@ jobs:
         with:
           name: terraform
           path: ./terraform
-      
+
       - name: Download Plan
         uses: actions/download-artifact@v2
         with:
-          name: tfplan
+          name: tfplan_${{ matrix.environment.name }}
           path: ./tfplan
-      
-      - name: ls
-        run: ls -la
-        working-directory: ./
 
       - name: install unzip
         run: sudo apt-get install unzip nodejs -y
@@ -193,7 +191,6 @@ jobs:
             -backend-config="client_secret=${{secrets.client_secret}}" \
             -backend-config="subscription_id=${{secrets.subscription_id}}"
         working-directory: ./terraform/${{ matrix.environment.folder }}
-
 
       - name: Generate variable file
         run: |
