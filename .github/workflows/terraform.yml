@@ -5,15 +5,15 @@ on:
     branches: [ "main" ]
   pull_request:
 
-permissions:
-  contents: read
-
 jobs:
-  terraform:
+  terraform_validate:
     name: 'Terraform'
-    runs-on: ubuntu-latest
-    environment: production
-
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        environment: [{name: "az-shared", folder: "az/shared", }, {name: "giswil-shared", folder: "giswil/shared", }, {name: "global-shared", folder: "global/shared", }]
+    runs-on: ${{ matrix.os }}
+    environment: ${{ matrix.environment.name }}
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
@@ -33,21 +33,19 @@ jobs:
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: terraform init -backend-config backend.hcl
-      working-directory: ./terraform
+      run: terraform init -backend-config=resource_group_name=${{secrets.resource_group_name}} -backend-config=storage_account_name=${{secrets.storage_account_name}} -backend-config=container_name=${{secrets.container_name}} -backend-config=key=${{secrets.key}} -backend-config=access_key=${{secrets.access_key}}
+      working-directory: ./terraform/${{ matrix.environment.folder }}
 
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
       run: terraform fmt -check
-      working-directory: ./terraform
+      working-directory: ./terraform/${{ matrix.environment.folder }}
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       run: terraform plan -input=false -var-file=variables.tfvars -var maas_api_url=${{secrets.maas_api_url}} -var maas_api_key=${{secrets.maas_api_key}} -var github_token=${{secrets.gh_token}}
-      working-directory: ./terraform
+      working-directory: ./terraform/${{ matrix.environment.folder }}
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false -var-file=variables.tfvars -var maas_api_url=${{secrets.maas_api_url}} -var maas_api_key=${{secrets.maas_api_key}} -var github_token=${{secrets.gh_token}}
+

@@ -17,7 +17,7 @@ resource "cloudflare_record" "docs_dev-env" {
   name    = cloudflare_pages_domain.docs_dev-env.domain
   value   = cloudflare_pages_project.development-environment.subdomain
   type    = "CNAME"
-  ttl     = 3600
+  ttl     = 1
   proxied = true
 }
 
