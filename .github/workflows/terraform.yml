@@ -25,7 +25,7 @@ jobs:
     name: "Terraform Apply ${{ matrix.environment.name }}"
     needs: gitCheckout
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [self-hosted]
         environment:
