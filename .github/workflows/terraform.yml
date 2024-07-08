@@ -81,7 +81,7 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -input=false -out=tfplan -var-file=variables.tfvars
         working-directory: ./terraform/${{ matrix.environment.folder }}
-        env:
+        ##env:
           ##ARM_CLIENT_ID: ${{ secrets.client_id }}
           ##ARM_CLIENT_SECRET: ${{ secrets.client_secret }}
           ##ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
@@ -90,7 +90,7 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false -var-file=variables.tfvars
         working-directory: ./terraform/${{ matrix.environment.folder }}
-        env:
+        ##env:
           ## ARM_CLIENT_ID: ${{ secrets.client_id }}
           ##ARM_CLIENT_SECRET: ${{ secrets.client_secret }}
           ##ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
