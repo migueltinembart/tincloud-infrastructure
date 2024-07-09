@@ -81,17 +81,17 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -input=false -out=tfplan -var-file=variables.tfvars
         working-directory: ./terraform/${{ matrix.environment.folder }}
-        ##env:
-          ##ARM_CLIENT_ID: ${{ secrets.client_id }}
-          ##ARM_CLIENT_SECRET: ${{ secrets.client_secret }}
-          ##ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
-          ##ARM_TENANT_ID: ${{ secrets.tenant_id }}
+        env:
+          ARM_CLIENT_ID: ${{ secrets.client_id }}
+          ARM_CLIENT_SECRET: ${{ secrets.client_secret }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+          ARM_TENANT_ID: ${{ secrets.tenant_id }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false -var-file=variables.tfvars
         working-directory: ./terraform/${{ matrix.environment.folder }}
-        ##env:
-          ## ARM_CLIENT_ID: ${{ secrets.client_id }}
-          ##ARM_CLIENT_SECRET: ${{ secrets.client_secret }}
-          ##ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
-          ##ARM_TENANT_ID: ${{ secrets.tenant_id }}
+        env:
+          ARM_CLIENT_ID: ${{ secrets.client_id }}
+          ARM_CLIENT_SECRET: ${{ secrets.client_secret }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+          ARM_TENANT_ID: ${{ secrets.tenant_id }}
