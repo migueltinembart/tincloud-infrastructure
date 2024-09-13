@@ -1,34 +1,40 @@
-variable "maas_api_url" {
-  description = "URL for the MAAS provider"
+variable "proxmox_endpoint" {
   type        = string
+  description = "The url of the proxmox hypervisor to connect to"
 }
 
-variable "maas_api_key" {
-  description = "API key for the MAAS provider"
+variable "proxmox_api_token" {
   type        = string
   sensitive   = true
+  description = "the api token for the proxmox instance with which to authenticate to"
+}
+
+variable "proxmox_tls_insecure" {
+  type        = bool
+  description = "if the tls certificate is trusted or not. If true the tls certificate will not be checked"
 }
 
 variable "github_token" {
-  description = "Token for the GitHub provider"
   type        = string
   sensitive   = true
+  description = "the github authentication token used for the provider"
 }
 
-variable "domains" {
-  type = set(string)
-
+variable "proxmox_nodes" {
+  type        = set(string)
+  description = "a list of nodes with their names"
 }
 
-variable "kvm_host_ids" {
-  type = set(string)
+variable "ssh_private_key" {
+  type      = string
+  sensitive = true
 }
 
-variable "pipeline_runners" {
+variable "github_runners" {
   type = map(object({
-    kvm_host  = string
     runner_version = string
-    github_repo = string
+    owner          = string
+    repo           = string
+    node_name      = string
   }))
 }
-

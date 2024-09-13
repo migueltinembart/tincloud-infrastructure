@@ -1,21 +1,28 @@
 terraform {
   required_providers {
-    maas = {
-      source  = "canonical/maas"
-      version = "2.3.0"
+    proxmox = {
+      source  = "bpg/proxmox"
+      version = "0.63.0"
     }
     github = {
       source  = "integrations/github"
-      version = "6.2.0"
+      version = "6.2.3"
     }
   }
-  backend "azurerm" {}
+  backend "azurerm" {
+
+  }
 }
 
-provider "maas" {
-  api_version = "2.0"
-  api_url     = var.maas_api_url
-  api_key     = var.maas_api_key
+provider "proxmox" {
+  endpoint  = var.proxmox_endpoint
+  api_token = var.proxmox_api_token
+  insecure  = var.proxmox_tls_insecure
+  ssh {
+    private_key = var.ssh_private_key
+    agent = true
+    username    = "root"
+  }
 }
 
 provider "github" {

@@ -1,0 +1,8 @@
+{
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json": [
+      "file:///Users/migueltinembart/projects/tbz/development-environment/tincloud-infrastructure/giswil/shared/cloud-init/github_runner/user_data.tftpl",
+      "file:///Users/migueltinembart/projects/tbz/development-environment/tincloud-infrastructure/giswil/shared/cloud-init/k8s-the-hard-way/user_data"
+    ]
+  }
+}

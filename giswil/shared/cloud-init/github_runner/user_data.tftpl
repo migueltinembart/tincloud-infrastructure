@@ -1,4 +1,4 @@
-#cloud-config:
+#cloud-config
 package_update: true
 package_upgrade: true
 
@@ -32,11 +32,10 @@ runcmd:
   - systemctl start docker
   - systemctl enable docker
   - usermod -a -G docker ghrunner
-  
   - mkdir /build-cache 
   - mkdir /actions-runner
   - cd /actions-runner
-  - curl -o actions-runner-linux-x64-2.317.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.317.0/actions-runner-linux-x64-2.317.0.tar.gz
+  - curl -o actions-runner-linux-x64-${runner_version}.tar.gz -L https://github.com/actions/runner/releases/download/v${runner_version}/actions-runner-linux-x64-${runner_version}.tar.gz
   - tar xzf ./actions-runner-linux-x64-${runner_version}.tar.gz
   - RUNNER_ALLOW_RUNASROOT=1 ./config.sh --url https://github.com/${owner}/${github_repo} --token ${github_token} --unattended
   - RUNNER_ALLOW_RUNASROOT=1 ./svc.sh install 

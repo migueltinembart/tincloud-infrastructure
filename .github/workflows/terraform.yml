@@ -79,7 +79,7 @@ jobs:
         working-directory: ./terraform/${{ matrix.environment.folder }}
 
       - name: Terraform Plan
-        run: terraform plan -input=false -out=tfplan -var-file=variables.tfvars
+        run: terraform plan -input=false -out=tfplan -var-file=variables.tfvars 2> "$GITHUB_OUTPUT"
         working-directory: ./terraform/${{ matrix.environment.folder }}
         env:
           ARM_CLIENT_ID: ${{ secrets.client_id }}
